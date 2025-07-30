@@ -1,0 +1,34 @@
+<div id="attendanceSection" class="hidden">
+    <div class="form-group">
+        <label for="internshipName">Select Internship:</label>
+        <select id="internshipName" class="form-control">
+            <option value="">Loading...</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="sheetName">Select Sheet:</label>
+        <select id="sheetName" disabled class="form-control">
+            <option value="">Select an Internship first</option>
+        </select>
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="markByEmailCheckbox">
+        <label for="markByEmailCheckbox">Mark by Email (Input emails instead of full names)</label>
+    </div>
+
+    <div class="form-group">
+        <label for="columnToMark">Select Column to Mark:</label>
+        <select id="columnToMark" disabled class="form-control">
+            <option value="">Select a Sheet first</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="internNames">Enter Names of Interns (one per line):</label>
+        <textarea id="internNames" placeholder="e.g., John Doe&#10;Jane Smith&#10;Peter Jones" class="form-control"></textarea>
+    </div>
+
+    <button onclick="markAttendance()">Mark Attendance</button>
+</div>
