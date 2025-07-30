@@ -1,0 +1,29 @@
+<div id="formsSection" class="hidden">
+    <div class="form-group">
+        <label for="form_internshipName">Select Internship:</label>
+        <select id="form_internshipName" class="form-control">
+            <option value="">Loading...</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="form_sheetName">Select Sheet:</label>
+        <select id="form_sheetName" disabled class="form-control">
+            <option value="">Select an Internship first</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="form_columnToMark">Select Column to Mark:</label>
+        <select id="form_columnToMark" disabled class="form-control">
+            <option value="">Select a Sheet first</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="form_internNames">Enter Intern Emails (one per line):</label>
+        <textarea id="form_internNames" placeholder="e.g., john.doe@example.com&#10;jane.smith@example.com" class="form-control"></textarea>
+    </div>
+
+    <button onclick="markForms()">Mark Forms</button>
+</div>
