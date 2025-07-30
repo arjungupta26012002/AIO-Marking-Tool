@@ -1,0 +1,373 @@
+<script>
+
+  function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = '';
+    messageDiv.classList.remove('success-message', 'error-message');
+  }
+
+  function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+  }
+
+  function displayMessage(msg, isSuccess) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = msg;
+    messageDiv.classList.remove('success-message', 'error-message');
+    if (isSuccess) {
+      messageDiv.classList.add('success-message');
+    } else {
+      messageDiv.classList.add('error-message');
+    }
+
+    setTimeout(() => {
+      messageDiv.style.display = 'none';
+      messageDiv.textContent = '';
+    }, 50000);
+  }
+
+  function loadInternshipList(selectId) {
+    const selectElement = document.getElementById(selectId);
+    selectElement.innerHTML = '<option value="">Loading...</option>';
+    selectElement.disabled = true;
+    showSpinner();
+
+    google.script.run
+      .withSuccessHandler(function(internships) {
+        selectElement.innerHTML = '<option value="">-- Select an Internship --</option>';
+        internships.forEach(internship => {
+          const option = document.createElement('option');
+          option.value = internship.id; 
+          option.textContent = internship.name;
+          selectElement.appendChild(option);
+        });
+        selectElement.disabled = false;
+        hideSpinner();
+      })
+      .withFailureHandler(function(error) {
+        displayMessage('Error loading internships: ' + error.message, false);
+        selectElement.innerHTML = '<option value="">Error loading internships</option>';
+        hideSpinner();
+      })
+      .getInternshipList();
+  }
+
+  function loadSheetList(internshipId, sheetSelectId, columnSelectId, isWeekDeliverables = false) {
+    const sheetSelect = document.getElementById(sheetSelectId);
+    const columnSelect = document.getElementById(columnSelectId);
+
+    sheetSelect.innerHTML = '<option value="">Loading sheets...</option>';
+    sheetSelect.disabled = true;
+    columnSelect.innerHTML = '<option value="">Select a Sheet first</option>';
+    columnSelect.disabled = true;
+
+    if (internshipId) {
+      showSpinner();
+      google.script.run
+        .withSuccessHandler(function(sheetNames) {
+          sheetSelect.innerHTML = '<option value="">-- Select a Sheet --</option>';
+          sheetNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            sheetSelect.appendChild(option);
+          });
+          sheetSelect.disabled = false;
+          hideSpinner();
+
+          if (sheetSelect.value) {
+            loadColumnList(internshipId, sheetSelect.value, columnSelectId, isWeekDeliverables);
+          }
+        })
+        .withFailureHandler(function(error) {
+          displayMessage('Error loading sheets: ' + error.message, false);
+          sheetSelect.innerHTML = '<option value="">Error loading sheets</option>';
+          hideSpinner();
+        })
+        .getSheetNames(internshipId);
+    } else {
+      sheetSelect.innerHTML = '<option value="">Select an Internship first</option>';
+    }
+  }
+
+  function loadColumnList(internshipId, sheetName, columnSelectId, isWeekDeliverables = false) {
+    const columnSelect = document.getElementById(columnSelectId);
+    columnSelect.innerHTML = '<option value="">Loading columns...</option>';
+    columnSelect.disabled = true;
+
+    if (internshipId && sheetName) {
+      showSpinner();
+      google.script.run
+        .withSuccessHandler(function(columnNames) {
+          columnSelect.innerHTML = '<option value="">-- Select Column to Mark --</option>';
+
+          const columnsToDisplay = isWeekDeliverables ?
+            columnNames.filter(name => typeof name === 'string' && name.toLowerCase().includes('week')) :
+            columnNames; 
+
+          columnsToDisplay.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            columnSelect.appendChild(option);
+          });
+          columnSelect.disabled = false;
+          hideSpinner();
+        })
+        .withFailureHandler(function(error) {
+          displayMessage('Error loading columns: ' + error.message, false);
+          columnSelect.innerHTML = '<option value="">Error loading columns</option>';
+          hideSpinner();
+        })
+        .getColumnNames(internshipId, sheetName); 
+    } else {
+      columnSelect.innerHTML = '<option value="">Select a Sheet first</option>';
+    }
+  }
+
+  let markByEmailCheckbox;
+  let emailLookupCheckboxGroup;
+  let internNamesTextarea;
+  let internNamesLabel;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const actionTypeSelect = document.getElementById('actionType');
+    const attendanceSection = document.getElementById('attendanceSection');
+    const week1Section = document.getElementById('week1Section');
+    const formsSection = document.getElementById('formsSection'); 
+
+    markByEmailCheckbox = document.getElementById('markByEmailCheckbox');
+    emailLookupCheckboxGroup = document.getElementById('emailLookupCheckboxGroup'); 
+    internNamesTextarea = document.getElementById('internNames');
+
+    internNamesLabel = document.querySelector('label[for="internNames"]');
+
+    attendanceSection.classList.add('hidden');
+    week1Section.classList.add('hidden');
+    formsSection.classList.add('hidden'); 
+
+    if (markByEmailCheckbox) { 
+        markByEmailCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                internNamesLabel.textContent = 'Enter Intern Emails (one per line):';
+                internNamesTextarea.placeholder = 'e.g., john.doe@example.com\njane.smith@example.com';
+            } else {
+                internNamesLabel.textContent = 'Enter Names of Interns (one per line):';
+                internNamesTextarea.placeholder = 'e.g., John Doe\nJane Smith\nPeter Jones';
+            }
+        });
+    }
+
+    actionTypeSelect.addEventListener('change', function() {
+      const selectedAction = this.value;
+
+      attendanceSection.classList.add('hidden');
+      week1Section.classList.add('hidden');
+      formsSection.classList.add('hidden'); 
+
+      if (emailLookupCheckboxGroup) { 
+          emailLookupCheckboxGroup.style.display = 'none';
+      }
+      if (markByEmailCheckbox) { 
+          markByEmailCheckbox.checked = false;
+      }
+      if (internNamesLabel) { 
+          internNamesLabel.textContent = 'Enter Names of Interns (one per line):';
+      }
+      if (internNamesTextarea) { 
+          internNamesTextarea.placeholder = 'e.g., John Doe\nJane Smith\nPeter Jones';
+      }
+
+      if (selectedAction === 'attendance') {
+        attendanceSection.classList.remove('hidden');
+
+        if (emailLookupCheckboxGroup) {
+            emailLookupCheckboxGroup.style.display = 'block';
+        }
+
+        if (document.getElementById('internshipName').options.length <= 1 || document.getElementById('internshipName').value === "") {
+            loadInternshipList('internshipName');
+        } else {
+
+            const internshipId = document.getElementById('internshipName').value;
+            const sheetName = document.getElementById('sheetName').value;
+            if (internshipId && sheetName) { 
+                loadSheetList(internshipId, 'sheetName', 'columnToMark', false);
+            } else if (internshipId) { 
+                loadSheetList(internshipId, 'sheetName', 'columnToMark', false);
+            }
+        }
+      } else if (selectedAction === 'week1') {
+        week1Section.classList.remove('hidden');
+
+        if (document.getElementById('wk1_internshipName').options.length <= 1 || document.getElementById('wk1_internshipName').value === "") {
+            loadInternshipList('wk1_internshipName');
+        } else {
+
+            const internshipId = document.getElementById('wk1_internshipName').value;
+            const sheetName = document.getElementById('wk1_sheetName').value;
+            if (internshipId && sheetName) { 
+                loadSheetList(internshipId, 'wk1_sheetName', 'wk1_columnToMark', true);
+            } else if (internshipId) { 
+                loadSheetList(internshipId, 'wk1_sheetName', 'wk1_columnToMark', true);
+            }
+        }
+      } else if (selectedAction === 'forms') { 
+        formsSection.classList.remove('hidden');
+
+        if (document.getElementById('form_internshipName').options.length <= 1 || document.getElementById('form_internshipName').value === "") {
+            loadInternshipList('form_internshipName');
+        } else {
+            const internshipId = document.getElementById('form_internshipName').value;
+            const sheetName = document.getElementById('form_sheetName').value;
+            if (internshipId && sheetName) {
+                loadSheetList(internshipId, 'form_sheetName', 'form_columnToMark', false); 
+            } else if (internshipId) {
+                loadSheetList(internshipId, 'form_sheetName', 'form_columnToMark', false); 
+            }
+        }
+      }
+
+    });
+
+    document.getElementById('internshipName').addEventListener('change', function() {
+      loadSheetList(this.value, 'sheetName', 'columnToMark', false);
+    });
+    document.getElementById('sheetName').addEventListener('change', function() {
+      const internshipId = document.getElementById('internshipName').value;
+      loadColumnList(internshipId, this.value, 'columnToMark', false);
+    });
+
+    document.getElementById('wk1_internshipName').addEventListener('change', function() {
+      loadSheetList(this.value, 'wk1_sheetName', 'wk1_columnToMark', true);
+    });
+    document.getElementById('wk1_sheetName').addEventListener('change', function() {
+      const internshipId = document.getElementById('wk1_internshipName').value;
+      loadColumnList(internshipId, this.value, 'wk1_columnToMark', true);
+    });
+
+    document.getElementById('form_internshipName').addEventListener('change', function() {
+      loadSheetList(this.value, 'form_sheetName', 'form_columnToMark', false); 
+    });
+    document.getElementById('form_sheetName').addEventListener('change', function() {
+      const internshipId = document.getElementById('form_internshipName').value;
+      loadColumnList(internshipId, this.value, 'form_columnToMark', false); 
+    });
+
+    actionTypeSelect.dispatchEvent(new Event('change'));
+  });
+
+  function markAttendance() {
+    const internshipId = document.getElementById('internshipName').value;
+    const sheetName = document.getElementById('sheetName').value;
+    const columnToMark = document.getElementById('columnToMark').value;
+
+    const internIdentifiers = document.getElementById('internNames').value.split('\n').map(id => id.trim()).filter(id => id !== '');
+
+    if (!internshipId || !sheetName || !columnToMark || internIdentifiers.length === 0) {
+      displayMessage('Please fill in all fields and provide intern names/emails for Attendance.', false);
+      return;
+    }
+
+    showSpinner();
+
+    if (markByEmailCheckbox && markByEmailCheckbox.checked) { 
+      google.script.run
+        .withSuccessHandler(function(result) {
+          displayMessage(result, true);
+          hideSpinner();
+          document.getElementById('internNames').value = ''; 
+        })
+        .withFailureHandler(function(error) {
+          displayMessage('Error marking attendance by email: ' + error.message, false);
+          hideSpinner();
+        })
+        .processAttendanceByEmail({ 
+          internshipId: internshipId,
+          sheetName: sheetName,
+          columnToMark: columnToMark,
+          internNames: internIdentifiers 
+        });
+    } else {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          displayMessage(result, true);
+          hideSpinner();
+          document.getElementById('internNames').value = ''; 
+        })
+        .withFailureHandler(function(error) {
+          displayMessage('Error marking attendance: ' + error.message, false);
+          hideSpinner();
+        })
+        .processAttendance({ 
+          internshipId: internshipId,
+          sheetName: sheetName,
+          columnToMark: columnToMark,
+          internNames: internIdentifiers 
+        });
+    }
+
+  }
+
+  function markWeek1Deliverables() {
+    const internshipId = document.getElementById('wk1_internshipName').value;
+    const sheetName = document.getElementById('wk1_sheetName').value;
+    const columnToMark = document.getElementById('wk1_columnToMark').value;
+    const internNames = document.getElementById('wk1_internNames').value.split('\n').map(name => name.trim()).filter(name => name);
+
+    if (!internshipId || !sheetName || !columnToMark || internNames.length === 0) {
+      displayMessage('Please fill in all fields and provide intern names for Weekly Deliverables.', false);
+      return;
+    }
+
+    showSpinner();
+    google.script.run
+      .withSuccessHandler(function(result) {
+        displayMessage(result, true);
+        hideSpinner();
+        document.getElementById('wk1_internNames').value = ''; 
+      })
+      .withFailureHandler(function(error) {
+        displayMessage('Error marking Weekly Deliverables: ' + error.message, false);
+        hideSpinner();
+      })
+      .processWeek1Deliverables({
+        internshipId: internshipId,
+        sheetName: sheetName,
+        columnToMark: columnToMark,
+        internNames: internNames
+      });
+  }
+
+  function markForms() {
+    const internshipId = document.getElementById('form_internshipName').value;
+    const sheetName = document.getElementById('form_sheetName').value;
+    const columnToMark = document.getElementById('form_columnToMark').value;
+
+    const internEmails = document.getElementById('form_internNames').value.split('\n').map(email => email.trim()).filter(email => email !== '');
+
+    if (!internshipId || !sheetName || !columnToMark || internEmails.length === 0) {
+      displayMessage('Please fill in all fields and provide intern emails for Marking Forms.', false);
+      return;
+    }
+
+    showSpinner();
+    google.script.run
+      .withSuccessHandler(function(result) {
+        displayMessage(result, true);
+        hideSpinner();
+        document.getElementById('form_internNames').value = ''; 
+      })
+      .withFailureHandler(function(error) {
+        displayMessage('Error marking forms: ' + error.message, false);
+        hideSpinner();
+      })
+      .processFormMarking({ 
+        internshipId: internshipId,
+        sheetName: sheetName,
+        columnToMark: columnToMark,
+        internNames: internEmails 
+      });
+  }
+</script>
