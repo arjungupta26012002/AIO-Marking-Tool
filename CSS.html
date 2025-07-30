@@ -1,0 +1,228 @@
+<style>
+  :root { 
+    --primary-color: #4CAF50;
+    --primary-hover-color: #45a049;
+    --text-color: #333;
+    --secondary-text-color: #555;
+    --background-color: #f8f9fa; 
+    --container-bg-color: #ffffff;
+    --border-color: #e0e0e0; 
+    --shadow-color: rgba(0, 0, 0, 0.08); 
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --feedback-link-color: #007bff; 
+    --feedback-link-hover-color: #0056b3;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 20px;
+    background-color: var(--background-color);
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; 
+    box-sizing: border-box; 
+  }
+
+  .container {
+    background-color: var(--container-bg-color);
+    padding: 30px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px var(--shadow-color); 
+    max-width: 500px; 
+    width: 100%; 
+    margin-bottom: 20px; 
+  }
+
+  h1 { 
+    color: var(--text-color);
+    text-align: center;
+    margin-top: 0; 
+    margin-bottom: 30px; 
+    font-size: 2em; 
+    font-weight: 600; 
+  }
+
+  .form-group { 
+    margin-bottom: 20px; 
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600; 
+    color: var(--secondary-text-color);
+    font-size: 0.95em;
+  }
+
+  .form-control { 
+    width: 100%;
+    padding: 12px; 
+    margin-bottom: 5px; 
+    border: 1px solid var(--border-color);
+    border-radius: 6px; 
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+  }
+
+  .form-control:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); 
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 100px; 
+  }
+
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em; 
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; 
+  }
+
+  button:hover {
+    background-color: var(--primary-hover-color);
+  }
+
+  button:active { 
+    transform: translateY(1px);
+  }
+
+  .error-message {
+    color: var(--error-color);
+    margin-top: 15px; 
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+
+  .success-message {
+    color: var(--success-color);
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+
+  .loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color); 
+    border-radius: 50%;
+    width: 24px; 
+    height: 24px;
+    animation: spin 1s linear infinite;
+    display: none;
+    margin: 20px auto; 
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .logo-container {
+    text-align: center;
+    margin-bottom: 25px; 
+  }
+
+  .logo {
+    max-width: 120px; 
+    height: auto;
+    border-radius: 8px; 
+  }
+
+  .copyright {
+    text-align: center;
+    margin-top: auto; 
+    padding-top: 20px; 
+    font-size: 0.85em; 
+    color: #888; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+    flex-wrap: wrap; 
+  }
+
+  .copyright a {
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+  }
+
+  .copyright a:hover {
+    color: var(--primary-color); 
+    text-decoration: underline;
+  }
+
+  .linkedin-link {
+    display: inline-flex;
+    vertical-align: middle;
+    line-height: 0;
+    height: 18px; 
+    width: 18px;
+  }
+
+  .linkedin-icon {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    border: none;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 15px; 
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 10px; 
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color); 
+  }
+
+  .checkbox-group label {
+    cursor: pointer;
+    margin-bottom: 0; 
+  }
+
+  .feedback-link {
+    font-size: 0.95em; 
+    color: var(--feedback-link-color); 
+    text-decoration: none; 
+    font-weight: 500; 
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+    white-space: nowrap; 
+  }
+
+  .feedback-link:hover {
+    color: var(--feedback-link-hover-color); 
+    text-decoration: underline; 
+  }
+
+  .separator {
+    color: #aaa; 
+    margin: 0 4px; 
+    white-space: nowrap; 
+  }
+</style>
