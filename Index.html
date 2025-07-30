@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('CSS'); ?>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <img src="https://raw.githubusercontent.com/arjungupta26012002/ExcelerateResources/refs/heads/main/uQLfqvsn_o.png" alt="Excelerate Logo" class="logo">
+    </div>
+    <h1>Excelerate Marking System</h1>
+
+    <div class="form-group">
+      <label for="actionType">What do you want to mark?</label>
+      <select id="actionType" class="form-control">
+        <option value="" selected disabled>-- Select an action --</option>
+        <option value="attendance">Attendance (OBM)</option>
+        <option value="week1">Weekly Deliverables</option>
+        <option value="forms">Marking Forms</option>
+      </select>
+    </div>
+
+    <?!= include('AttendanceSection'); ?>
+    <?!= include('Week1Section'); ?>
+    <?!= include('FormsSection'); ?>
+
+    <div class="loading-spinner" id="spinner"></div>
+    <div id="message" class="error-message"></div>
+
+    </div>
+
+  <div class="copyright">
+    <span>© 2025 Made with ❤️ by <a href="mailto:arjungupta26012002@gmail.com">Arjun Gupta</a></span>
+    <a href="https://www.linkedin.com/in/arjungupta26012002/" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+      <img src="https://raw.githubusercontent.com/arjungupta26012002/ExcelerateResources/refs/heads/main/5AjJm1lz_o.gif" alt="Connect on LinkedIn" class="linkedin-icon">
+    </a>
+    <span class="separator">|</span>
+    <a href="https://forms.gle/EG2AKbv26KMwpr6i9" target="_blank" rel="noopener noreferrer" class="feedback-link">
+      Review/Report/Request
+    </a>
+  </div>
+
+  <?!= include('JavaScript'); ?>
+</body>
+</html>
